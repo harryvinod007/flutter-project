@@ -8,6 +8,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:math';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class FileComplaintPage extends StatefulWidget {
   const FileComplaintPage({Key? key}) : super(key: key);
@@ -26,7 +28,7 @@ class _FileComplaintPageState extends State<FileComplaintPage> {
   XFile? _mediaFile;
 
   final _dateFormat = DateFormat('yyyy-MM-dd');
-
+  DateTime _selectedDate = DateTime.now();
   String? _uploadedMediaUrl; // Variable to store the uploaded media URL
   bool isSubmitting = false;
 
@@ -64,32 +66,63 @@ class _FileComplaintPageState extends State<FileComplaintPage> {
 
 
   // Function to select date
+  // Function to select date
+  // Function to select date
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
       firstDate: DateTime(2000),
-      lastDate: DateTime(2101),
+      lastDate: DateTime.now(), // Restrict to today or earlier
     );
     if (picked != null) {
       setState(() {
         _dateController.text = _dateFormat.format(picked);
+        _selectedDate = picked; // Store the selected date for time validation
       });
     }
   }
 
-  // Function to select time
+// Function to select time
   Future<void> _selectTime(BuildContext context) async {
     final TimeOfDay? picked = await showTimePicker(
       context: context,
       initialTime: TimeOfDay.now(),
     );
     if (picked != null) {
+      final now = DateTime.now();
+      final pickedDateTime = DateTime(
+        _selectedDate.year,
+        _selectedDate.month,
+        _selectedDate.day,
+        picked.hour,
+        picked.minute,
+      );
+
+      // Check if the selected date is today
+      final isToday = _selectedDate.year == now.year &&
+          _selectedDate.month == now.month &&
+          _selectedDate.day == now.day;
+
+      if (isToday && pickedDateTime.isAfter(now)) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Future time is not allowed.')),
+        );
+        setState(() {
+          _timeController.text = ''; // Clear the Time of Occurrence field
+        });
+        return;
+      }
+
       setState(() {
-        _timeController.text = picked.format(context);
+        _timeController.text = picked.format(context); // Set valid time
       });
     }
   }
+
+
+
+
 
   // Function to select media
   Future<void> _selectMedia() async {
@@ -178,13 +211,18 @@ class _FileComplaintPageState extends State<FileComplaintPage> {
         if (_mediaFile != null) {
           _uploadedMediaUrl = await _uploadMedia(File(_mediaFile!.path));
         }
-
+        FirebaseMessaging messaging = FirebaseMessaging.instance;
+        String? token = await messaging.getToken();
+        if (token == null) {
+          print('Failed to retrieve FCM token.');
+        }
         Map<String, dynamic> complaintData = {
           'complaintId': complaintId,
           'folderId': '',
           'tokenNumber': tokenNumber,
           'description': _descriptionController.text.trim(),
           'category': 'General',
+          'reporterToken':token,
           'dateOfOccurrence': _dateController.text.trim(),
           'timeOfOccurrence': _timeController.text.trim(),
           'title': _titleController.text.trim(),
@@ -244,7 +282,7 @@ class _FileComplaintPageState extends State<FileComplaintPage> {
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            colors: [Colors.blue, Colors.lightBlueAccent],
+            colors: [Color(0xFF34495e), Color(0xFF2c3e50)], // Gradient colors
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
           ),
@@ -404,12 +442,6 @@ class _FileComplaintPageState extends State<FileComplaintPage> {
                             border: OutlineInputBorder(),
                             suffixIcon: Icon(Icons.access_time),
                           ),
-                          validator: (value) {
-                            if (value == null || value.trim().isEmpty) {
-                              return 'Time of Occurrence is required.';
-                            }
-                            return null;
-                          },
                         ),
                       ),
                     ),
@@ -445,7 +477,7 @@ class _FileComplaintPageState extends State<FileComplaintPage> {
                         width: 200, // Fixed width
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: isSubmitting ? Colors.grey : Colors.black,
+                            backgroundColor: isSubmitting?const Color(0xFF2c3e50):Color(0xFF1abc9c), // Updated button background color
                             foregroundColor: Colors.white,
                             padding: const EdgeInsets.symmetric(vertical: 16),
                           ),

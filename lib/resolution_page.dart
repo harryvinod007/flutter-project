@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:intl/intl.dart';
 
 class ResolutionPage extends StatefulWidget {
-  const ResolutionPage({Key? key}) : super(key: key);
+  final String complaintId;
+
+  const ResolutionPage({Key? key, required this.complaintId}) : super(key: key);
 
   @override
   _ResolutionPageState createState() => _ResolutionPageState();
@@ -10,6 +14,40 @@ class ResolutionPage extends StatefulWidget {
 class _ResolutionPageState extends State<ResolutionPage> {
   final TextEditingController feedbackController = TextEditingController();
   bool showFeedbackForm = false;
+
+  String? decisionText;
+  String? formattedDecisionDate;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchResolutionDetails();
+  }
+
+  Future<void> fetchResolutionDetails() async {
+    try {
+      DocumentSnapshot complaintDoc = await FirebaseFirestore.instance
+          .collection('complaints')
+          .doc(widget.complaintId)
+          .get();
+
+      if (complaintDoc.exists) {
+        Map<String, dynamic> data =
+        complaintDoc.data() as Map<String, dynamic>;
+        String? decisionDate = data['decision']['decisionDate'];
+
+        setState(() {
+          decisionText = data['status']['resolution'];
+          formattedDecisionDate = decisionDate != null
+              ? DateFormat('MMMM dd, yyyy').format(DateTime.parse(decisionDate))
+              : null;
+        });
+      }
+    } catch (e) {
+      // Handle errors gracefully
+      print('Error fetching resolution details: $e');
+    }
+  }
 
   void submitFeedback() {
     if (feedbackController.text.isNotEmpty) {
@@ -56,11 +94,14 @@ class _ResolutionPageState extends State<ResolutionPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Resolution'),
-        backgroundColor: Colors.blue,
+        backgroundColor: const Color(0xFF34495E),
+        foregroundColor: Colors.white,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
+        child: decisionText == null || formattedDecisionDate == null
+            ? const Center(child: CircularProgressIndicator())
+            : Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             const Spacer(),
@@ -71,14 +112,29 @@ class _ResolutionPageState extends State<ResolutionPage> {
               ),
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
-                child: Text(
-                  '@sreeram has been given suspension due to property theft.',
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.black,
-                  ),
-                  textAlign: TextAlign.center,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(
+                      decisionText!,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.black,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      'Decision Date: $formattedDecisionDate',
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w400,
+                        color: Colors.grey,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -91,7 +147,8 @@ class _ResolutionPageState extends State<ResolutionPage> {
                   });
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
+                  backgroundColor: const Color(0xFF1ABC9C),
+                  foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 14.0),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10.0),
@@ -99,7 +156,10 @@ class _ResolutionPageState extends State<ResolutionPage> {
                 ),
                 child: const Text(
                   'Give Feedback',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             if (showFeedbackForm) ...[
@@ -129,7 +189,8 @@ class _ResolutionPageState extends State<ResolutionPage> {
               ElevatedButton(
                 onPressed: submitFeedback,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
+                  backgroundColor: const Color(0xFF1ABC9C),
+                  foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 14.0),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10.0),
@@ -137,7 +198,10 @@ class _ResolutionPageState extends State<ResolutionPage> {
                 ),
                 child: const Text(
                   'Submit Feedback',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ],

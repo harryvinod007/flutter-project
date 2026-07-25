@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # trail_correction
 
 A new Flutter project.
@@ -14,3 +15,7 @@ A few resources to get you started if this is your first Flutter project:
 For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev/), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
+=======
+# my-project
+Web and app project for review
+>>>>>>> 05f301401cc24e8df4d544ba0b6992045fcb3590

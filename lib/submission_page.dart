@@ -108,7 +108,7 @@ class SubmissionPage extends StatelessWidget {
           Container(
             decoration: const BoxDecoration(
               gradient: LinearGradient(
-                colors: [Colors.blue, Colors.lightBlueAccent],
+                colors: [Color(0xFF34495e), Color(0xFF2c3e50)], // Gradient colors
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
               ),
@@ -200,8 +200,8 @@ class SubmissionPage extends StatelessWidget {
                       ),
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue,
-                          foregroundColor: Colors.white,
+                            backgroundColor: const Color(0xFF1abc9c), // Updated button background color
+                            foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 32),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10),

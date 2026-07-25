@@ -11,7 +11,7 @@ class HomePage extends StatelessWidget {
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            colors: [Colors.blue, Colors.lightBlueAccent],
+            colors: [Color(0xFF34495e), Color(0xFF2c3e50)], // Gradient colors
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
           ),
@@ -48,7 +48,7 @@ class HomePage extends StatelessWidget {
                 width: double.infinity, // Make button take full width
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.black, // Button background color
+                    backgroundColor: const Color(0xFF1abc9c), // Updated button background color
                     foregroundColor: Colors.white, // Text color
                     padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
                     elevation: 5, // Add shadow for a floating effect
@@ -80,7 +80,7 @@ class HomePage extends StatelessWidget {
                 width: double.infinity, // Make button take full width
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.black, // Button background color
+                    backgroundColor: const Color(0xFF1abc9c), // Updated button background color
                     foregroundColor: Colors.white, // Text color
                     padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
                     elevation: 5, // Add shadow for a floating effect
@@ -112,7 +112,7 @@ class HomePage extends StatelessWidget {
                 width: double.infinity, // Make button take full width
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.black, // Same color for consistency
+                    backgroundColor: const Color(0xFF1abc9c), // Updated button background color
                     foregroundColor: Colors.white, // Text color
                     padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
                     elevation: 3, // Subtle shadow effect
